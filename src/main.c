@@ -9,7 +9,12 @@ void app_main() {
 
     int counter = 0;
     for (;;) {
-        counter += driver_rot_encoder_poll();
+        encoder_state_t state = driver_rot_encoder_poll();
+        counter += state.steps;
+
+        if (state.button_pressed) {
+            counter = 0;
+        }
 
         driver_oled_clear();
         driver_oled_draw_text(10, 10, false, "Counter:");

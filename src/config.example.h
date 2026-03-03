@@ -17,4 +17,10 @@
 #define WIFI_SSID "haha"         //! REQUIRED
 #define WIFI_PASSWORD "you_wish" //! REQUIRED
 
+// encoder settings
+#define ENCODER_BUTTON GPIO_NUM_8
+#define ENCODER_LEFT GPIO_NUM_9
+#define ENCODER_RIGHT GPIO_NUM_10
+#define ENCODER_DEBOUNCE_DELAY 20000 // microseconds
+
 #endif // CONFIG_H
