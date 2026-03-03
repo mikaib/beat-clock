@@ -5,6 +5,10 @@
 #include <time.h>
 #include <stdbool.h>
 
+void service_time_task() {
+
+}
+
 void service_time_init(bool create_task) {
 
 }

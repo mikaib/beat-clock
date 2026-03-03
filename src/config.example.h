@@ -23,4 +23,8 @@
 #define ENCODER_RIGHT GPIO_NUM_10
 #define ENCODER_DEBOUNCE_DELAY 20000 // microseconds
 
+// sntp settings
+#define SNTP_SERVER "time.google.com"
+#define SNTP_PORT 123
+
 #endif // CONFIG_H
