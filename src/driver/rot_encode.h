@@ -5,8 +5,10 @@
 #ifndef ROT_ENCODE_H
 #define ROT_ENCODE_H
 
+#include <stdint.h>
+
 void driver_rot_encoder_init();
 void driver_rot_encoder_flush(); // flushes internal counter, so you don't get huge numbers after not polling for a while
-int driver_rot_encoder_poll(); // returns amounts of steps taken since last poll
+int32_t driver_rot_encoder_poll(); // returns amounts of steps taken since last poll
 
 #endif // ROT_ENCODE_H
