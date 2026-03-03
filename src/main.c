@@ -1,3 +1,4 @@
+#include <freertos/FreeRTOS.h>
 #include <driver/oled.h>
 #include <driver/wifi.h>
 #include <driver/rot_encode.h>
