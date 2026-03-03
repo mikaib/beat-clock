@@ -14,7 +14,7 @@
 #define OLED_HEIGHT 64
 
 // wifi settings
-#define WIFI_SSID "KPN523A66"         //! REQUIRED
-#define WIFI_PASSWORD "GrHt1379rspsVGwF" //! REQUIRED
+#define WIFI_SSID "haha"         //! REQUIRED
+#define WIFI_PASSWORD "you_wish" //! REQUIRED
 
 #endif // CONFIG_H
