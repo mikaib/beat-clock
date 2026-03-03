@@ -19,10 +19,10 @@ void service_time_task(void* params) {
 }
 
 void service_time_init(bool create_task) {
-    service_time_sync();
-
     if (create_task) {
         xTaskCreate(&service_time_task, "time_task", 4096, NULL, 0, NULL);
+    } else {
+        service_time_sync();
     }
 }
 
