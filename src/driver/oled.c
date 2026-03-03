@@ -23,7 +23,7 @@ static const i2c_ssd1306_config_t i2c_ssd1306_config = {
     .i2c_scl_speed_hz = OLED_SPEED,
     .width = OLED_WIDTH,
     .height = OLED_HEIGHT,
-    .wise = SSD1306_TOP_TO_BOTTOM
+    .wise = SSD1306_BOTTOM_TO_TOP
 };
 
 void driver_oled_init() {
