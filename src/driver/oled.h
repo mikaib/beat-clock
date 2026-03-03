@@ -6,9 +6,12 @@
 #define OLED_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <config.h>
 
 void driver_oled_init();
 void driver_oled_clear();
-void driver_oled_draw_text(uint16_t x, uint16_t y, uint8_t size, const char* text);
+void driver_oled_draw_text(uint16_t x, uint16_t y, bool invert, const char* text);
+void driver_oled_submit();
 
 #endif // OLED_H
