@@ -29,5 +29,6 @@
 // sntp settings
 #define SNTP_SERVER "time.google.com"
 #define SNTP_PORT 123
+#define SNTP_HOUR_OFFSET 1 // timezone
 
 #endif // CONFIG_H
