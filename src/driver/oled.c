@@ -5,6 +5,7 @@
 #include <driver/oled.h>
 #include <driver/i2c_master.h>
 #include <lib/esp_ssd1306/esp_ssd1306.h>
+#include <config.h>
 
 static i2c_master_bus_handle_t i2c_master_bus;
 static i2c_ssd1306_handle_t i2c_ssd1306;
