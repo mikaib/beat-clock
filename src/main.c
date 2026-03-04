@@ -2,6 +2,7 @@
 #include <driver/oled.h>
 #include <driver/wifi.h>
 #include <driver/rot_encode.h>
+#include <driver/motor.h>
 #include <services/time.h>
 #include <util/beats.h>
 
@@ -9,6 +10,7 @@ void app_main() {
     driver_oled_init();
     driver_wifi_init();
     driver_rot_encoder_init();
+    driver_motor_init();
     service_time_init(true);
 
     for (;;) {
