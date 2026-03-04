@@ -14,6 +14,11 @@ void app_main() {
     service_time_init(true);
 
     for (;;) {
+        encoder_state_t state = driver_rot_encoder_poll();
+        if (state.button_pressed) {
+            driver_motor_move_by(90.0);
+        }
+
         beats_t time = get_beats();
         driver_oled_clear();
 

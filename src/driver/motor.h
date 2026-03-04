@@ -5,11 +5,10 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+#include <stdint.h>
+
 void driver_motor_init();
-void driver_motor_set_speed(float speed); // factor
-float driver_motor_get_speed();
-void driver_motor_set_target(float target); // deg
-float driver_motor_get_target();
-void driver_motor_increment_target(float delta); // diff in deg
+void driver_motor_set_speed(uint16_t speed); // ms / step
+void driver_motor_move_by(float deg);
 
 #endif // MOTOR_H

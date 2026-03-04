@@ -31,4 +31,11 @@
 #define SNTP_PORT 123
 #define SNTP_HOUR_OFFSET 1 // timezone
 
+// motor settings
+#define MOTOR_RATIO 64 // 1:64 for 28BYJ-48 (https://forum.arduino.cc/t/28byj-48-steps-per-revolution/876716/2)
+#define MOTOR_A GPIO_NUM_13
+#define MOTOR_B GPIO_NUM_14
+#define MOTOR_C GPIO_NUM_15
+#define MOTOR_D GPIO_NUM_16
+
 #endif // CONFIG_H
