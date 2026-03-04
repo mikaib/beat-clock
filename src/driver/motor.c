@@ -8,6 +8,7 @@
 #include <driver/gpio.h>
 #include <config.h>
 #include <stdint.h>
+#include <math.h>
 
 // sequence: https://www.flywing-tech.com/blog/uln2003-pinout-sequences-and-drive-modes/
 static const int sequence[8][4] = {
@@ -17,15 +18,15 @@ static const int sequence[8][4] = {
     {1,0,0,1}  // D+A
 };
 
-volatile static int64_t curr_target = 0;
-volatile static int64_t curr_steps = 0;
-volatile static uint16_t curr_speed = 15;
+static int64_t curr_target = 0;
+static int64_t curr_steps = 0;
+static uint16_t curr_speed = 15;
 static TaskHandle_t driver_motor_task_handle = NULL;
 
 // excluding gear ratios of motor, this should be 5.625deg according to the referenced blog
-#define FULL_ROTATION_RAW 16
+#define FULL_ROTATION_RAW 32
 #define STEPS_PER_ROTATION (FULL_ROTATION_RAW * MOTOR_RATIO)
-#define DEG_TO_STEP(deg) ((int64_t)((deg) / 360.0 * STEPS_PER_ROTATION))
+#define DEG_TO_STEP(deg) ((int64_t)llround((deg) / 360.0 * STEPS_PER_ROTATION))
 
 void driver_motor_set_state(int step) {
     gpio_set_level(MOTOR_A, sequence[step][0]);

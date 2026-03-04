@@ -5,6 +5,32 @@
 #include <driver/motor.h>
 #include <services/time.h>
 #include <util/beats.h>
+#include <stdbool.h>
+
+static int64_t last_time = 0;
+static bool manual_mode = true;
+
+void app_update_oled(beats_t time) {
+    driver_oled_clear();
+
+    char beats_str[5];
+    sprintf(beats_str, "%lld", time.unit);
+    driver_oled_draw_text(10, 10, false, beats_str);
+
+    char centibeats_str[5];
+    sprintf(centibeats_str, "%lld", time.centi);
+    driver_oled_draw_text(10, 30, false, centibeats_str);
+
+    driver_oled_submit();
+}
+
+void app_tick_motor(int64_t delta) {
+    if (manual_mode) {
+        return;
+    }
+
+    driver_motor_move_by(3.6 * delta);
+}
 
 void app_main() {
     driver_oled_init();
@@ -14,23 +40,27 @@ void app_main() {
     service_time_init(true);
 
     for (;;) {
+        beats_t time = get_beats();
         encoder_state_t state = driver_rot_encoder_poll();
-        if (state.button_pressed) {
-            driver_motor_move_by(90.0);
+
+        if (last_time == 0) {
+            last_time = time.centi_unbound;
         }
 
-        beats_t time = get_beats();
-        driver_oled_clear();
+        if (last_time != time.centi_unbound) {
+            app_update_oled(time);
+            app_tick_motor(time.centi_unbound - last_time);
+            last_time = time.centi_unbound;
+        }
 
-        char beats_str[5];
-        sprintf(beats_str, "%lld", time.unit);
-        driver_oled_draw_text(10, 10, false, beats_str);
+        if (state.button_pressed) {
+            manual_mode = !manual_mode;
+        }
 
-        char centibeats_str[5];
-        sprintf(centibeats_str, "%lld", time.centi);
-        driver_oled_draw_text(10, 30, false, centibeats_str);
+        if (manual_mode) {
+            driver_motor_move_by(state.steps * 3.6);
+        }
 
-        driver_oled_submit();
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
