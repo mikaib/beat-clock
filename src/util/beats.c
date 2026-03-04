@@ -3,19 +3,28 @@
 //
 
 #include <util/beats.h>
+#include <sys/time.h>
 
-beats_t time_to_beats(time_t time) {
-    return (beats_t){ 0 };
+#define US_DAY 86400000000LL
+
+beats_t time_to_beats(int64_t time) {
+    int64_t centi_unbound = (time % US_DAY) * 100000LL / US_DAY;
+
+    beats_t beats;
+    beats.unit = centi_unbound / 100;
+    beats.centi = centi_unbound % 100;
+    beats.centi_unbound = centi_unbound;
+
+    return beats;
 }
 
 beats_t get_beats() {
     return time_to_beats(get_time());
 }
 
-time_t beats_to_time(beats_t beats) {
-    return 0;
-}
-
 time_t get_time() {
-    return 0;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    return tv.tv_sec * 1000000LL + tv.tv_usec;
 }
