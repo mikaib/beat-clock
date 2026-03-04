@@ -38,8 +38,6 @@ void IRAM_ATTR driver_rot_encoder_press_isr() {
         button_pressed = true;
         last_button = now;
     }
-
-    button_pressed = true;
 }
 
 void driver_rot_encoder_init() {
