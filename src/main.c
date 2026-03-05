@@ -3,9 +3,11 @@
 #include <driver/wifi.h>
 #include <driver/rot_encode.h>
 #include <driver/motor.h>
+#include <driver/status_led.h>
 #include <services/time.h>
 #include <util/beats.h>
 #include <stdbool.h>
+#include <config.h>
 
 static int64_t last_time = 0;
 static bool manual_mode = true;
@@ -32,16 +34,66 @@ void app_tick_motor(int64_t delta) {
     driver_motor_move_by(3.6 * delta);
 }
 
+static status_led_t network_led = {
+    .pin = LED_A,
+    .active = false,
+    .blinking = false,
+    .one_shot = false,
+    .duration = 0,
+    .last_blink = 0
+};
+
+static status_led_t mode_led = {
+    .pin = LED_B,
+    .active = false,
+    .blinking = false,
+    .one_shot = false,
+    .duration = 0,
+    .last_blink = 0
+};
+
+static status_led_t time_led = {
+    .pin = LED_C,
+    .active = false,
+    .blinking = false,
+    .one_shot = false,
+    .duration = 0,
+    .last_blink = 0
+};
+
+static wifi_status_e last_wifi_state = NONE;
+
 void app_main() {
     driver_oled_init();
     driver_wifi_init();
     driver_rot_encoder_init();
     driver_motor_init();
+    driver_status_led_init(&network_led);
+    driver_status_led_init(&mode_led);
+    driver_status_led_init(&time_led);
+    driver_status_led_set(&mode_led, true);
     service_time_init(true);
 
     for (;;) {
         beats_t time = get_beats();
         encoder_state_t state = driver_rot_encoder_poll();
+
+        wifi_status_e wifi_state = driver_wifi_status();
+        if (wifi_state != last_wifi_state) {
+            last_wifi_state = wifi_state;
+
+            switch (wifi_state) {
+                case NONE:
+                case NOT_CONNECTED:
+                case NOT_AVAILABLE:
+                case ERROR:
+                    driver_status_led_blink(&network_led, CENTI_BEAT_DURATION * S_TO_US);
+                    break;
+                case CONNECTED:
+                    driver_status_led_set(&network_led, true);
+                    break;
+            }
+        }
 
         if (last_time == 0) {
             last_time = time.centi_unbound;
@@ -51,15 +103,21 @@ void app_main() {
             app_update_oled(time);
             app_tick_motor(time.centi_unbound - last_time);
             last_time = time.centi_unbound;
+            driver_status_led_blink_one_shot(&time_led, (CENTI_BEAT_DURATION / 2.0) * S_TO_US);
         }
 
         if (state.button_pressed) {
             manual_mode = !manual_mode;
+            driver_status_led_set(&mode_led, manual_mode);
         }
 
         if (manual_mode) {
             driver_motor_move_by(state.steps * 3.6);
         }
+
+        driver_status_led_update(&network_led);
+        driver_status_led_update(&mode_led);
+        driver_status_led_update(&time_led);
 
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }

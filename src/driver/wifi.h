@@ -11,8 +11,17 @@
 #define WIFI_CONNECTED_BIT (1 << 0)
 #define WIFI_GOT_IP_BIT (1 << 1)
 
+typedef enum wifi_status {
+    NONE,
+    CONNECTED,
+    NOT_CONNECTED,
+    NOT_AVAILABLE,
+    ERROR
+} wifi_status_e;
+
 void driver_wifi_init();
 void driver_wifi_connection_event(void* event_handler_arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 void driver_wifi_ip_event(void* event_handler_arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+wifi_status_e driver_wifi_status();
 
 #endif // WIFI_H

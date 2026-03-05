@@ -88,5 +88,9 @@ void driver_motor_set_speed(uint16_t speed) {
 
 void driver_motor_move_by(float delta) {
     curr_target += DEG_TO_STEP(delta);
+    if (curr_target == curr_steps) {
+        return;
+    }
+
     driver_motor_ensure_task();
 }
