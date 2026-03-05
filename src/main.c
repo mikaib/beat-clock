@@ -61,6 +61,8 @@ static status_led_t time_led = {
     .last_blink = 0
 };
 
+static wifi_status_e last_wifi_state = NONE;
+
 void app_main() {
     driver_oled_init();
     driver_wifi_init();
@@ -76,6 +78,23 @@ void app_main() {
         beats_t time = get_beats();
         encoder_state_t state = driver_rot_encoder_poll();
 
+        wifi_status_e wifi_state = driver_wifi_status();
+        if (wifi_state != last_wifi_state) {
+            last_wifi_state = wifi_state;
+
+            switch (wifi_state) {
+                case NONE:
+                case NOT_CONNECTED:
+                case NOT_AVAILABLE:
+                case ERROR:
+                    driver_status_led_blink(&network_led, CENTI_BEAT_DURATION * S_TO_US);
+                    break;
+                case CONNECTED:
+                    driver_status_led_set(&network_led, true);
+                    break;
+            }
+        }
+
         if (last_time == 0) {
             last_time = time.centi_unbound;
         }
@@ -88,8 +107,8 @@ void app_main() {
         }
 
         if (state.button_pressed) {
-            driver_status_led_set(&mode_led, manual_mode);
             manual_mode = !manual_mode;
+            driver_status_led_set(&mode_led, manual_mode);
         }
 
         if (manual_mode) {
