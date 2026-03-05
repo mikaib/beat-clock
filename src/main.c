@@ -8,40 +8,10 @@
 #include <util/beats.h>
 #include <stdbool.h>
 #include <config.h>
+#include <esp_timer.h>
 
 static int64_t last_time = 0;
 static bool manual_mode = true;
-
-void app_update_oled(beats_t time) {
-    driver_oled_clear();
-
-    char beats_str[5];
-    sprintf(beats_str, "%lld", time.unit);
-    driver_oled_draw_text(10, 10, false, beats_str);
-
-    char centibeats_str[5];
-    sprintf(centibeats_str, "%lld", time.centi);
-    driver_oled_draw_text(10, 30, false, centibeats_str);
-
-    wifi_status_e wifi_state = driver_wifi_status();
-    switch (wifi_state) {
-        case NONE:
-        case NOT_CONNECTED:
-            driver_oled_draw_text(10, 50, true, "not connected");
-            break;
-        case NOT_AVAILABLE:
-            driver_oled_draw_text(10, 50, true, "not available");
-            break;
-        case ERROR:
-            driver_oled_draw_text(10, 50, true, "error");
-            break;
-        case CONNECTED:
-            driver_oled_draw_text(10, 50, true, "connected");
-            break;
-    }
-
-    driver_oled_submit();
-}
 
 void app_tick_motor(int64_t delta) {
     if (manual_mode) {
@@ -79,6 +49,49 @@ static status_led_t time_led = {
 };
 
 static wifi_status_e last_wifi_state = NONE;
+static volatile bool screen_enabled = true;
+static volatile int64_t last_boot_button = 0;
+
+void IRAM_ATTR app_boot_isr() {
+    int64_t now = esp_timer_get_time();
+    if (now - last_boot_button > ENCODER_DEBOUNCE_DELAY) {
+        screen_enabled = !screen_enabled;
+        last_boot_button = now;
+    }
+}
+
+void app_update_oled(beats_t time) {
+    driver_oled_clear();
+
+    if (screen_enabled) {
+        char beats_str[5];
+        sprintf(beats_str, "%lld", time.unit);
+        driver_oled_draw_text(10, 10, false, beats_str);
+
+        char centibeats_str[5];
+        sprintf(centibeats_str, "%lld", time.centi);
+        driver_oled_draw_text(10, 30, false, centibeats_str);
+
+        wifi_status_e wifi_state = driver_wifi_status();
+        switch (wifi_state) {
+            case NONE:
+            case NOT_CONNECTED:
+                driver_oled_draw_text(10, 50, true, "not connected");
+                break;
+            case NOT_AVAILABLE:
+                driver_oled_draw_text(10, 50, true, "not available");
+                break;
+            case ERROR:
+                driver_oled_draw_text(10, 50, true, "error");
+                break;
+            case CONNECTED:
+                driver_oled_draw_text(10, 50, true, "connected");
+                break;
+        }
+    }
+
+    driver_oled_submit();
+}
 
 void app_main() {
     driver_oled_init();
@@ -90,6 +103,21 @@ void app_main() {
     driver_status_led_init(&time_led);
     driver_status_led_set(&mode_led, true);
     service_time_init(true);
+
+    gpio_config_t io_conf = {
+        .mode = GPIO_MODE_INPUT,
+        .pin_bit_mask = (1ULL << GPIO_NUM_0),
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_ANYEDGE
+    };
+
+    gpio_config(&io_conf);
+
+    gpio_install_isr_service(0);
+    gpio_set_intr_type(GPIO_NUM_0, GPIO_INTR_NEGEDGE); // falling edge
+
+    gpio_isr_handler_add(GPIO_NUM_0, app_boot_isr, NULL);
 
     for (;;) {
         beats_t time = get_beats();
