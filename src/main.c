@@ -66,7 +66,9 @@ void app_main() {
     driver_wifi_init();
     driver_rot_encoder_init();
     driver_motor_init();
-    driver_status_led_init();
+    driver_status_led_init(&network_led);
+    driver_status_led_init(&mode_led);
+    driver_status_led_init(&time_led);
     service_time_init(true);
 
     for (;;) {
