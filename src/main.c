@@ -69,6 +69,7 @@ void app_main() {
     driver_status_led_init(&network_led);
     driver_status_led_init(&mode_led);
     driver_status_led_init(&time_led);
+    driver_status_led_set(&mode_led, true);
     service_time_init(true);
 
     for (;;) {
@@ -86,6 +87,7 @@ void app_main() {
         }
 
         if (state.button_pressed) {
+            driver_status_led_set(&mode_led, manual_mode);
             manual_mode = !manual_mode;
         }
 
