@@ -3,9 +3,11 @@
 #include <driver/wifi.h>
 #include <driver/rot_encode.h>
 #include <driver/motor.h>
+#include <driver/status_led.h>
 #include <services/time.h>
 #include <util/beats.h>
 #include <stdbool.h>
+#include <config.h>
 
 static int64_t last_time = 0;
 static bool manual_mode = true;
@@ -32,11 +34,39 @@ void app_tick_motor(int64_t delta) {
     driver_motor_move_by(3.6 * delta);
 }
 
+static status_led_t network_led = {
+    .pin = LED_A,
+    .active = false,
+    .blinking = false,
+    .one_shot = false,
+    .duration = 0,
+    .last_blink = 0
+};
+
+static status_led_t mode_led = {
+    .pin = LED_B,
+    .active = false,
+    .blinking = false,
+    .one_shot = false,
+    .duration = 0,
+    .last_blink = 0
+};
+
+static status_led_t time_led = {
+    .pin = LED_C,
+    .active = false,
+    .blinking = false,
+    .one_shot = false,
+    .duration = 0,
+    .last_blink = 0
+};
+
 void app_main() {
     driver_oled_init();
     driver_wifi_init();
     driver_rot_encoder_init();
     driver_motor_init();
+    driver_status_led_init();
     service_time_init(true);
 
     for (;;) {

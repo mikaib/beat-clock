@@ -38,4 +38,9 @@
 #define MOTOR_C GPIO_NUM_15
 #define MOTOR_D GPIO_NUM_16
 
+// led settings
+#define LED_A GPIO_NUM_36
+#define LED_B GPIO_NUM_37
+#define LED_C GPIO_NUM_38
+
 #endif // CONFIG_H
