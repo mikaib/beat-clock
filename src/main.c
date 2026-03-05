@@ -23,6 +23,23 @@ void app_update_oled(beats_t time) {
     sprintf(centibeats_str, "%lld", time.centi);
     driver_oled_draw_text(10, 30, false, centibeats_str);
 
+    wifi_status_e wifi_state = driver_wifi_status();
+    switch (wifi_state) {
+        case NONE:
+        case NOT_CONNECTED:
+            driver_oled_draw_text(10, 50, true, "not connected");
+            break;
+        case NOT_AVAILABLE:
+            driver_oled_draw_text(10, 50, true, "not available");
+            break;
+        case ERROR:
+            driver_oled_draw_text(10, 50, true, "error");
+            break;
+        case CONNECTED:
+            driver_oled_draw_text(10, 50, true, "connected");
+            break;
+    }
+
     driver_oled_submit();
 }
 
