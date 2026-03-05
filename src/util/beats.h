@@ -5,6 +5,10 @@
 #ifndef BEATS_H
 #define BEATS_H
 
+#define BEAT_DURATION 86.4
+#define CENTI_BEAT_DURATION 0.864
+#define S_TO_US 1000000LL
+
 #include <stdint.h>
 
 typedef struct beats {

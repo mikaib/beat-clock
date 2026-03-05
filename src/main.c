@@ -84,6 +84,7 @@ void app_main() {
             app_update_oled(time);
             app_tick_motor(time.centi_unbound - last_time);
             last_time = time.centi_unbound;
+            driver_status_led_blink_one_shot(&time_led, (CENTI_BEAT_DURATION / 2.0) * S_TO_US);
         }
 
         if (state.button_pressed) {
@@ -94,6 +95,10 @@ void app_main() {
         if (manual_mode) {
             driver_motor_move_by(state.steps * 3.6);
         }
+
+        driver_status_led_update(&network_led);
+        driver_status_led_update(&mode_led);
+        driver_status_led_update(&time_led);
 
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
