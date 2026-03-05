@@ -45,6 +45,6 @@
 
 // buzzer settings
 #define BUZZER GPIO_NUM_39
-#define BUZZER_DURATION 0.1
+#define BUZZER_DURATION 1
 
 #endif // CONFIG_H
