@@ -44,7 +44,9 @@ void driver_motor_set_off() {
 
 void driver_motor_task(void* params) {
     for (;;) {
-        if (curr_steps != curr_target) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        while (curr_steps != curr_target) {
             int step = curr_steps % 4;
             if (step < 0) {
                 step += 4;
@@ -59,17 +61,9 @@ void driver_motor_task(void* params) {
             }
 
             vTaskDelay(pdMS_TO_TICKS(curr_speed));
-        } else {
-            driver_motor_set_off();
-            driver_motor_task_handle = NULL; // TODO: mutex
-            vTaskDelete(NULL);
         }
-    }
-}
 
-void driver_motor_ensure_task() {
-    if (driver_motor_task_handle == NULL) { // TODO: mutex
-        xTaskCreate(&driver_motor_task, "motor_task", 4096, NULL, 0, &driver_motor_task_handle);
+        driver_motor_set_off();
     }
 }
 
@@ -80,6 +74,7 @@ void driver_motor_init() {
     };
 
     gpio_config(&io_conf);
+    xTaskCreate(&driver_motor_task, "motor_task", 4096, NULL, 1, &driver_motor_task_handle);
 }
 
 void driver_motor_set_speed(uint16_t speed) {
@@ -92,5 +87,5 @@ void driver_motor_move_by(float delta) {
         return;
     }
 
-    driver_motor_ensure_task();
+    xTaskNotifyGive(driver_motor_task_handle);
 }
